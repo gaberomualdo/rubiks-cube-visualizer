@@ -1,7 +1,6 @@
 extern crate image;
 
 use std::time::{Instant};
-use std::thread::spawn;
 
 fn to_replace(looking_for: [i32; 3], actual: [i32; 3]) -> bool {
     for index in 0..3 {
@@ -20,6 +19,8 @@ fn to_replace(looking_for: [i32; 3], actual: [i32; 3]) -> bool {
 }
 
 fn main() {
+    const LARGE_IMAGE: bool = true;
+
     use std::env;
     use image::GenericImageView;
 
@@ -96,12 +97,19 @@ fn main() {
 
     eprintln!("elapsed after colors evaluated {:?}", start_time.elapsed());
 
-    let source_img_path = "img/cube_sourceimage.jpg";
+    let mut source_img_path = "img/cube_sourceimage_small.jpg";
+
+    let mut is_large_image_multiplier = 1;
+
+    if LARGE_IMAGE {
+        is_large_image_multiplier = 2;
+        source_img_path = "img/cube_sourceimage.jpg";
+    }
 
     let img = image::open(source_img_path).unwrap();
 
-    let img_width = 600;
-    let img_height = 400;
+    let img_width = 300 * is_large_image_multiplier;
+    let img_height = 200 * is_large_image_multiplier;
 
     let mut new_img_buffer = image::ImageBuffer::new(img_width, img_height);
 
@@ -113,7 +121,7 @@ fn main() {
         
         let mut new_pixel_value: [u8; 3] = rgb;
         
-        if x > 160 && x < 446 && y > 70 && y < 362 {
+        if x > (80 * is_large_image_multiplier) && x < (223 * is_large_image_multiplier) && y > (35 * is_large_image_multiplier) && y < (181 * is_large_image_multiplier) {
             let rgb_as_i32: [i32; 3] = [i32::from(rgba[0]), i32::from(rgba[1]), i32::from(rgba[2])];
             
             for values in replace_values.iter() {
@@ -161,10 +169,19 @@ fn main() {
             cur_digit += 1;
         }
     }
+
+    let image_filename = format!("{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}.jpg", img_uid[0], img_uid[1], img_uid[2], img_uid[3], img_uid[4], img_uid[5], img_uid[6], img_uid[7], img_uid[8], img_uid[9], img_uid[10], img_uid[11], img_uid[12], img_uid[13], img_uid[14], img_uid[15], img_uid[16], img_uid[17], img_uid[18], img_uid[19], img_uid[20], img_uid[21], img_uid[22], img_uid[23], img_uid[24], img_uid[25], img_uid[26]);
+    let mut image_directory = "img/out/";
+
+    if LARGE_IMAGE {
+        image_directory = "img/out/large/";
+    }
+
     eprintln!("elapsed end {:?}", start_time.elapsed());
 
     // save image
-    new_img_buffer.save(format!("img/out/{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}.jpg", img_uid[0], img_uid[1], img_uid[2], img_uid[3], img_uid[4], img_uid[5], img_uid[6], img_uid[7], img_uid[8], img_uid[9], img_uid[10], img_uid[11], img_uid[12], img_uid[13], img_uid[14], img_uid[15], img_uid[16], img_uid[17], img_uid[18], img_uid[19], img_uid[20], img_uid[21], img_uid[22], img_uid[23], img_uid[24], img_uid[25], img_uid[26])).unwrap();
+
+    new_img_buffer.save(format!("{}{}", image_directory, image_filename)).unwrap();
 
     eprintln!("elapsed saved {:?}", start_time.elapsed());
 }
