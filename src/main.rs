@@ -1,65 +1,92 @@
-//! An example of generating julia fractals.
 extern crate image;
 
-// use std::fs::OpenOptions;
-// use std::io::prelude::*;
 
 fn to_replace(looking_for: [i32; 3], actual: [i32; 3]) -> bool {
-    let mut to_replace = true;
-
     for index in 0..3 {
         let looking_for_val = looking_for[index];
         let actual_val = actual[index];
-
+        
         let difference = looking_for_val - actual_val;
         let difference_abs = difference.abs();
-
-        if difference_abs > 4 {
-            to_replace = false;
+        
+        if difference_abs > 3 {
+            return false;
         }
     }
-
-    return to_replace;
+    
+    return true;
 }
 
 fn main() {
+    use std::env;
     use image::GenericImageView;
 
-    let replace_values: [[[u8; 3]; 2]; 27] = [
-        [[255, 160, 122], [0, 0, 73]],
-        [[250, 128, 114], [0, 0, 80]],
-        [[233, 150, 122], [0, 0, 87]],
-        [[240, 128, 128], [0, 0, 94]],
-        [[205, 92, 92], [0, 0, 101]],
-        [[220, 20, 60], [0, 0, 108]],
-        [[178, 34, 34], [0, 0, 115]],
-        [[255, 0, 0], [0, 0, 122]],
-        [[139, 0, 0], [0, 0, 129]],
-        [[255, 127, 80], [0, 0, 136]],
-        [[255, 99, 71], [0, 0, 143]],
-        [[255, 69, 0], [0, 0, 150]],
-        [[255, 215, 0], [0, 0, 157]],
-        [[255, 165, 0], [0, 0, 164]],
-        [[255, 140, 0], [0, 0, 171]],
-        [[255, 255, 224], [0, 0, 178]],
-        [[255, 250, 205], [0, 0, 185]],
-        [[250, 250, 210], [0, 0, 192]],
-        [[255, 239, 213], [0, 0, 199]],
-        [[255, 228, 181], [0, 0, 206]],
-        [[255, 218, 185], [0, 0, 213]],
-        [[238, 232, 170], [0, 0, 220]],
-        [[240, 230, 140], [0, 0, 227]],
-        [[189, 183, 107], [0, 0, 234]],
-        [[255, 255, 0], [0, 0, 241]],
-        [[124, 252, 0], [0, 0, 248]],
-        [[127, 255, 0], [0, 0, 255]],
+    let green: [u8; 3] = [99, 250, 119];
+    let orange: [u8; 3] = [249, 128, 42];
+    let blue: [u8; 3] = [58, 194, 254];
+    let red: [u8; 3] = [236, 97, 100];
+    let white: [u8; 3] = [227, 227, 219];
+    let yellow: [u8; 3] = [203, 247, 76];
+
+    let none: [u8; 3] = [0, 0, 0];
+
+    let mut replace_values: [[[u8; 3]; 2]; 27] = [
+        [none, [0, 0, 115]],
+        [none, [0, 0, 108]],
+        [none, [0, 0, 73]],
+        [none, [0, 0, 122]],
+        [none, [0, 0, 101]],
+        [none, [0, 0, 80]],
+        [none, [0, 0, 129]],
+        [none, [0, 0, 94]],
+        [none, [0, 0, 87]],
+
+        [none, [0, 0, 136]],
+        [none, [0, 0, 157]],
+        [none, [0, 0, 178]],
+        [none, [0, 0, 143]],
+        [none, [0, 0, 164]],
+        [none, [0, 0, 185]],
+        [none, [0, 0, 150]],
+        [none, [0, 0, 171]],
+        [none, [0, 0, 192]],
+        
+        [none, [0, 0, 199]],
+        [none, [0, 0, 206]],
+        [none, [0, 0, 213]],
+        [none, [0, 0, 220]],
+        [none, [0, 0, 227]],
+        [none, [0, 0, 234]],
+        [none, [0, 0, 241]],
+        [none, [0, 0, 248]],
+        [none, [0, 0, 255]],
     ];
 
-    // let mut file = OpenOptions::new()
-    //     .write(true)
-    //     .append(true)
-    //     .open("output.txt")
-    //     .unwrap();
+    // update replace args to match cmd args
+    let cmd_args: Vec<String> = env::args().collect();
+    let mut replace_color_ind = 0;
+    for color in cmd_args.iter() {
+        
+        if (color == "green") {
+            replace_values[replace_color_ind][0] = green;
+            replace_color_ind += 1;
+        } else if (color == "orange") {
+            replace_values[replace_color_ind][0] = orange;
+            replace_color_ind += 1;
+        } else if (color == "blue") {
+            replace_values[replace_color_ind][0] = blue;
+            replace_color_ind += 1;
+        } else if (color == "red") {
+            replace_values[replace_color_ind][0] = red;
+            replace_color_ind += 1;
+        } else if (color == "white") {
+            replace_values[replace_color_ind][0] = white;
+            replace_color_ind += 1;
+        } else if (color == "yellow") {
+            replace_values[replace_color_ind][0] = yellow;
+            replace_color_ind += 1;
+        }
+    }
 
     let source_img_path = "img/cube_sourceimage.jpg";
 
@@ -68,7 +95,6 @@ fn main() {
     let img_width = img.dimensions().0;
     let img_height = img.dimensions().1;
 
-    // create new image buffer with dimensions
     let mut new_img_buffer = image::ImageBuffer::new(img_width, img_height);
 
     for pixel in img.pixels() {
@@ -92,12 +118,7 @@ fn main() {
         }
 
         let new_img_pixel = new_img_buffer.get_pixel_mut(x, y);
-
         *new_img_pixel = image::Rgb(new_pixel_value);
-
-        // if let Err(e) = writeln!(file, "{:?}" , (p)) {
-        //     eprintln!("Couldn't write to file: {}", e);
-        // }
     }
 
     // save image
