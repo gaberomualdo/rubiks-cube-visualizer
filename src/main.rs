@@ -30,7 +30,7 @@ fn colors_are_similar(looking_for: [i32; 3], actual: [i32; 3]) -> bool {
 }
 
 fn display_time_elapsed(title: &str, start_time: Instant) {
-    eprintln!(
+    println!(
         "{}{}  {:?}",
         std::iter::repeat(" ").take(83 - title.len()).collect::<String>().to_string(),
         title,
